@@ -1,0 +1,57 @@
+name: Calvito Windows
+on:
+  push:
+    branches: [main, master]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: calvito-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  windows:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npm test
+      - run: npm run test:smoke
+      - name: Build installer and portable executable
+        run: npm run dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Calvito-Windows-x64
+          path: |
+            dist/*.exe
+            dist/*.blockmap
+            dist/latest.yml
+          if-no-files-found: error
+      - name: Publish a new version only after validation
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: pwsh
+        run: |
+          $version = node -p "require('./package.json').version"
+          $tag = "v$version"
+          if ($env:GITHUB_REF_TYPE -eq 'tag' -and $env:GITHUB_REF_NAME -ne $tag) { throw 'The tag must match package.json version.' }
+          gh release view $tag --repo $env:GITHUB_REPOSITORY *> $null
+          if ($LASTEXITCODE -eq 0) { Write-Host "Version $tag already exists. Increase package.json version to publish an update."; exit 0 }
+          gh api "repos/$env:GITHUB_REPOSITORY" --silent
+          if ($LASTEXITCODE -ne 0) { throw 'Could not reach the repository. Release aborted.' }
+          $files = Get-ChildItem dist -File | Where-Object { $_.Name -match '\.(exe|blockmap)$|^latest\.yml$' } | ForEach-Object { $_.FullName }
+          gh release create $tag @files --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title "Calvito $version" --generate-notes --draft
+          if ($LASTEXITCODE -ne 0) { throw 'Release upload failed.' }
+          gh release edit $tag --repo $env:GITHUB_REPOSITORY --draft=false --latest
+          if ($LASTEXITCODE -ne 0) { throw 'Release publication failed.' }

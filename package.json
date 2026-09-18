@@ -1,0 +1,36 @@
+{
+  "name": "calvito-browser",
+  "version": "1.1.0",
+  "description": "Calvito Browser: un espacio abierto para explorar, crear y navegar a tu manera.",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --enable-logging",
+    "icons": "node scripts/icons.cjs",
+    "test": "node --test tests/*.test.cjs",
+    "test:smoke": "node tests/smoke.cjs",
+    "check": "node scripts/check.cjs",
+    "build": "electron-builder --win --publish never",
+    "dist": "electron-builder --win --publish never",
+    "release": "electron-builder --win --publish always"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "electron": "44.4.3",
+    "electron-builder": "^26.15.3",
+    "sharp": "0.35.4"
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.9"
+  },
+  "license": "MIT",
+  "author": "shodzery",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shodzery/calvitobrowser.git"
+  },
+  "homepage": "https://github.com/shodzery/calvitobrowser",
+  "bugs": {
+    "url": "https://github.com/shodzery/calvitobrowser/issues"
+  }
+}

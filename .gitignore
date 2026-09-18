@@ -1,0 +1,11 @@
+node_modules/
+dist/
+release/
+*.log
+docs/smoke-*.png
+test-results/
+playwright-report/
+.env
+.env.*
+*.pfx
+*.p12

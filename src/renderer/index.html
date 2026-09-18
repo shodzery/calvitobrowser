@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self';" />
+    <title>Calvito</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main id="app">
+      <section class="browser-shell" aria-label="Navegador Calvito">
+        <header class="chrome">
+          <div class="tab-row">
+            <div class="brand" title="Calvito">
+              <img class="brand-logo" src="assets/icon.png" alt="Calvito" />
+            </div>
+            <button id="profile-button" class="profile-button" title="Cambiar de perfil" aria-label="Cambiar de perfil">
+              <span id="profile-avatar">🙂</span>
+            </button>
+            <div id="tabs" class="tabs" role="tablist" aria-label="Pestañas"></div>
+            <button id="new-tab" class="icon-button new-tab" title="Nueva pestaña (Ctrl+T)" aria-label="Nueva pestaña">+</button>
+          </div>
+
+          <div class="toolbar">
+            <div class="navigation-actions">
+              <button id="back" class="icon-button" title="Atrás (Alt+←)" aria-label="Atrás">←</button>
+              <button id="forward" class="icon-button" title="Adelante (Alt+→)" aria-label="Adelante">→</button>
+              <button id="reload" class="icon-button" title="Recargar" aria-label="Recargar">↻</button>
+              <button id="home" class="icon-button" title="Inicio" aria-label="Inicio">⌂</button>
+            </div>
+            <div class="address-wrap">
+              <button id="shield" class="shield" title="Protección contra rastreadores activada" aria-label="Cambiar protección">♢</button>
+              <form id="address-form">
+                <input id="address" autocomplete="off" spellcheck="false" placeholder="Busca o escribe una dirección" aria-label="Dirección o búsqueda" />
+              </form>
+              <button id="clear-address" class="clear-address" title="Limpiar">×</button>
+              <button id="popup-indicator" class="popup-indicator" hidden title="Ventanas emergentes bloqueadas" aria-label="Ventanas emergentes bloqueadas">⧉ <span id="popup-count">0</span></button>
+              <div id="suggestions" class="suggestions" hidden></div>
+            </div>
+            <div class="page-actions">
+              <button id="command-button" class="icon-button command-button" title="Comandos (Ctrl+K)" aria-label="Abrir comandos">⌘</button>
+              <button id="star" class="icon-button star" title="Añadir marcador (Ctrl+D)" aria-label="Añadir marcador">☆</button>
+              <button id="library" class="icon-button" title="Marcadores, historial y descargas" aria-label="Abrir biblioteca">☰</button>
+              <button id="page-menu-button" class="icon-button" title="Acciones de pestaña" aria-label="Acciones de pestaña">⋯</button>
+              <button id="settings" class="icon-button" title="Ajustes" aria-label="Ajustes">⚙</button>
+            </div>
+          </div>
+          <nav id="bookmark-bar" class="bookmark-bar" aria-label="Barra de marcadores"></nav>
+          <div id="find-bar" class="find-bar" hidden>
+            <span class="find-icon">⌕</span>
+            <input id="find-input" type="search" autocomplete="off" placeholder="Buscar en esta página" aria-label="Buscar en esta página" />
+            <span id="find-count" class="find-count">0/0</span>
+            <button id="find-previous" class="mini-control" title="Resultado anterior" aria-label="Resultado anterior">↑</button>
+            <button id="find-next" class="mini-control" title="Resultado siguiente" aria-label="Resultado siguiente">↓</button>
+            <button id="find-close" class="mini-control" title="Cerrar búsqueda" aria-label="Cerrar búsqueda">×</button>
+          </div>
+          <div id="load-progress" class="load-progress" aria-hidden="true"><span></span></div>
+        </header>
+
+        <section id="workspace" class="workspace" aria-live="polite"></section>
+
+        <footer class="status-bar">
+          <span id="status-dot" class="status-dot"></span>
+          <span id="status">Listo para navegar</span>
+          <span id="privacy-status" class="privacy-status">Protección activa</span>
+        </footer>
+      </section>
+    </main>
+
+    <div id="page-menu" class="page-menu" hidden>
+      <div class="page-menu-site">
+        <span class="site-lock">♢</span>
+        <div><strong id="page-menu-title">Pestaña nueva</strong><small id="page-menu-url">Sin página abierta</small></div>
+      </div>
+      <div class="page-menu-section">
+        <button data-page-action="pin"><span>⌖</span><span id="pin-label">Fijar pestaña</span></button>
+        <button data-page-action="duplicate"><span>⊞</span><span>Duplicar pestaña</span></button>
+        <button data-page-action="mute"><span id="mute-icon">◌</span><span id="mute-label">Silenciar sitio</span></button>
+      </div>
+      <div class="page-menu-section">
+        <div class="zoom-row"><span>Zoom</span><button data-page-action="zoom-out" aria-label="Alejar">−</button><strong id="zoom-label">100%</strong><button data-page-action="zoom-in" aria-label="Acercar">+</button><button class="zoom-reset" data-page-action="zoom-reset">Restablecer</button></div>
+        <button data-page-action="find"><span>⌕</span><span>Buscar en la página</span><kbd>Ctrl+F</kbd></button>
+        <button data-page-action="pdf"><span>↓</span><span>Guardar página como PDF</span></button>
+        <button data-page-action="focus"><span>⛶</span><span>Modo enfoque</span><kbd>Ctrl+Shift+F</kbd></button>
+        <button data-page-action="external"><span>↗</span><span>Abrir en el navegador predeterminado</span></button>
+      </div>
+    </div>
+
+    <div id="shield-panel" class="shield-panel" hidden></div>
+
+    <div id="popup-list" class="popup-list" hidden></div>
+
+    <div id="permission-banner" class="permission-banner" hidden>
+      <span id="permission-icon">◔</span>
+      <div class="permission-copy">
+        <strong id="permission-title">Un sitio pide permiso</strong>
+        <small id="permission-origin"></small>
+      </div>
+      <label class="permission-remember"><input id="permission-remember" type="checkbox" /> Recordar</label>
+      <button id="permission-block" class="text-button">Bloquear</button>
+      <button id="permission-allow" class="tab-menu-primary">Permitir</button>
+    </div>
+
+    <div id="profile-menu" class="profile-menu" hidden></div>
+
+    <div id="tab-context-menu" class="tab-context-menu" hidden></div>
+
+    <aside id="library-sidebar" class="sidebar" hidden>
+      <div class="sidebar-backdrop" data-close-modal></div>
+      <section class="library-panel" role="dialog" aria-modal="true" aria-labelledby="library-title">
+        <div class="sidebar-heading">
+          <div>
+            <span class="eyebrow">TU ESPACIO</span>
+            <h2 id="library-title">Biblioteca</h2>
+          </div>
+          <button class="icon-button" data-close-modal aria-label="Cerrar">×</button>
+        </div>
+        <div class="library-tabs" role="tablist">
+          <button class="library-tab active" data-library-view="bookmarks">Marcadores</button>
+          <button class="library-tab" data-library-view="history">Historial</button>
+          <button class="library-tab" data-library-view="downloads">Descargas</button>
+          <button class="library-tab" data-library-view="tabs">Pestañas</button>
+          <button class="library-tab" data-library-view="sitedata">Datos del sitio</button>
+          <button class="library-tab" data-library-view="permissions">Permisos</button>
+          <button class="library-tab" data-library-view="notes">Notas</button>
+        </div>
+        <div id="library-content" class="library-content"></div>
+      </section>
+    </aside>
+
+    <div id="settings-modal" class="modal" hidden>
+      <div class="modal-backdrop" data-close-settings></div>
+      <section class="settings-panel" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+        <div class="modal-heading">
+          <div>
+            <span class="eyebrow">CALVITO</span>
+            <h2 id="settings-title">Ajustes</h2>
+          </div>
+          <button class="icon-button" data-close-settings aria-label="Cerrar">×</button>
+        </div>
+        <div class="setting-row">
+          <div>
+            <strong>Bloqueo de rastreadores</strong>
+            <p>Reduce solicitudes de redes publicitarias conocidas.</p>
+          </div>
+          <label class="switch"><input id="protection-toggle" type="checkbox" /><span></span></label>
+        </div>
+        <div class="setting-row">
+          <div>
+            <strong>Motor de búsqueda</strong>
+            <p>Usado cuando escribes una consulta en la barra.</p>
+          </div>
+          <select id="search-engine">
+            <option value="duckduckgo">DuckDuckGo</option>
+            <option value="google">Google</option>
+            <option value="brave">Brave Search</option>
+            <option value="bing">Bing</option>
+            <option value="ecosia">Ecosia</option>
+          </select>
+        </div>
+        <div class="setting-row">
+          <div>
+            <strong>Apariencia</strong>
+            <p>Elige una interfaz cómoda para ti.</p>
+          </div>
+          <select id="theme-select">
+            <option value="dark">Oscura</option>
+            <option value="light">Clara</option>
+            <option value="system">Sistema</option>
+          </select>
+        </div>
+        <div class="setting-row">
+          <div>
+            <strong>Restaurar sesión</strong>
+            <p>Vuelve a abrir las pestañas normales al iniciar Calvito.</p>
+          </div>
+          <label class="switch"><input id="restore-session-toggle" type="checkbox" /><span></span></label>
+        </div>
+        <div class="setting-row">
+          <div>
+            <strong>Barra de marcadores</strong>
+            <p>Muestra tus sitios guardados bajo la barra de direcciones.</p>
+          </div>
+          <label class="switch"><input id="bookmark-bar-toggle" type="checkbox" /><span></span></label>
+        </div>
+        <div class="setting-row"><div><strong>Color de acento</strong><p>Haz que Calvito se sienta tuyo.</p></div><select id="accent-select" aria-label="Color de acento"><option value="mint">Menta</option><option value="violet">Violeta</option><option value="amber">Ámbar</option></select></div>
+        <div class="setting-row"><div><strong>Reducir movimiento</strong><p>Desactiva las animaciones de la interfaz.</p></div><label class="switch"><input id="motion-toggle" type="checkbox" aria-label="Reducir movimiento" /><span></span></label></div>
+        <div class="setting-row"><div><strong>Tus marcadores, contigo</strong><p>Importa o exporta un archivo JSON de Calvito.</p></div><div class="setting-actions"><button id="import-bookmarks" class="text-button">Importar</button><button id="export-bookmarks" class="text-button">Exportar</button></div></div>
+        <div class="setting-row"><div><strong>Buscar actualizaciones automáticamente</strong><p>Consulta GitHub al iniciar y cada cuatro horas.</p></div><label class="switch"><input id="updates-toggle" type="checkbox" aria-label="Buscar actualizaciones automáticamente" /><span></span></label></div>
+        <section class="update-card" aria-labelledby="update-title"><div class="update-heading"><img src="assets/icon.png" alt="" /><div><strong id="update-title">Calvito <span id="app-version"></span></strong><small>Código abierto · Canal estable</small></div></div><p id="update-message" role="status">Consultando estado…</p><progress id="update-progress" max="100" value="0" hidden aria-label="Progreso de actualización"></progress><div class="setting-actions"><button id="check-updates" class="text-button">Buscar actualizaciones</button><button id="download-update" class="text-button" hidden>Descargar</button><button id="install-update" class="text-button" hidden>Reiniciar e instalar</button><button id="source-code" class="text-button">Ver código ↗</button></div></section>
+        <p class="settings-note">Los datos de navegación permanecen en este equipo. La navegación privada no oculta tu actividad a los sitios ni a tu proveedor de internet. Los archivos descargados se conservan.</p>
+      </section>
+    </div>
+
+    <div id="command-palette" class="command-palette" hidden>
+      <div class="palette-backdrop" data-close-palette></div>
+      <section class="palette-panel" role="dialog" aria-modal="true" aria-labelledby="palette-label">
+        <div class="palette-input-row">
+          <span>⌘</span>
+          <input id="palette-input" autocomplete="off" placeholder="Escribe un comando o busca en la web…" aria-label="Comandos" role="combobox" aria-controls="palette-results" aria-expanded="true" />
+          <kbd>Esc</kbd>
+        </div>
+        <div id="palette-label" class="sr-only">Comandos rápidos</div><div id="palette-results" class="palette-results" role="listbox"></div>
+        <div class="palette-footer"><span>↑↓ para moverte</span><span>↵ para elegir</span><span>Ctrl+K para abrir</span></div>
+      </section>
+    </div>
+
+    <button id="focus-exit" class="focus-exit" hidden title="Salir del modo enfoque (Ctrl+Shift+F)">Salir del enfoque</button>
+
+    <template id="empty-state-template">
+      <div class="empty-state">
+        <div class="empty-icon">⌁</div>
+        <h3></h3>
+        <p></p>
+      </div>
+    </template>
+    <script src="features.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
